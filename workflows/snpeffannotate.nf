@@ -5,6 +5,9 @@
 */
 include { paramsSummaryMap       } from 'plugin/nf-schema'
 include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pipeline'
+include { SNPEFF_SNPEFF          } from '../modules/nf-core/snpeff/snpeff/main.nf'
+include { SNPEFF_BUILD           } from '../modules/local/snpeff_build.nf'
+include { SNPSIFT_EXTRACTFIELDS  } from '../modules/local/snpsift_extractfields.nf'
 
 /*
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -15,10 +18,12 @@ include { softwareVersionsToYAML } from '../subworkflows/nf-core/utils_nfcore_pi
 workflow SNPEFFANNOTATE {
 
     take:
-    ch_samplesheet // channel: samplesheet read in from --input
+    ch_samplesheet // channel: [meta, vcf, fasta, gff]
     main:
 
     ch_versions = Channel.empty()
+
+
 
     //
     // Collate and save software versions

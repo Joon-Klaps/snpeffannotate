@@ -13,21 +13,28 @@
                 "errorMessage": "Sample name must be provided and cannot contain spaces",
                 "meta": ["id"]
             },
-            "fastq_1": {
+            "vcf": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 1 must be provided, cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.[bv]cf(\\.gz)?$",
+                "errorMessage": "VCF file must be a valid path and have a .vcf, .bcf, .vcf.gz extension",
             },
-            "fastq_2": {
+            "fasta": {
                 "type": "string",
                 "format": "file-path",
                 "exists": true,
-                "pattern": "^\\S+\\.f(ast)?q\\.gz$",
-                "errorMessage": "FastQ file for reads 2 cannot contain spaces and must have extension '.fq.gz' or '.fastq.gz'"
+                "pattern": "^\\S+\\.fa(sta)?(\\.gz)?$",
+                "errorMessage": "Fasta file must be a valid path and have a .fa, .fasta, .fa.gz or .fasta.gz extension"
+            },
+            "gff": {
+                "type": "string",
+                "format": "file-path",
+                "exists": true,
+                "pattern": "^\\S+\\.gff(3)?$",
+                "errorMessage": "GFF file must be a valid path and have a .gff or .gff3 extension"
             }
         },
-        "required": ["sample", "fastq_1"]
+        "required": ["sample", "vcf", "fasta", "gff"]
     }
 }
