@@ -23,7 +23,26 @@ workflow SNPEFFANNOTATE {
 
     ch_versions = Channel.empty()
 
+    build_in = ch_samplesheet.map{meta, vcf, fasta, gff -> [meta, fasta, gff] }
+    ch_vcf = ch_samplesheet.map{meta, vcf, fasta, gff -> [meta, vcf]}
 
+    SNPEFF_BUILD(build_in)
+    ch_versions = ch_versions.mix(SNPEFF_BUILD.out.versions)
+
+    snpeff_in = SNPEFF_BUILD.out.db
+        .join(ch_vcf)
+        .multiMap{meta, db, cache, vcf ->
+            vcf: [meta, vcf]
+            db : db
+            cache: [meta, cache]
+        }
+
+    SNPEFF_SNPEFF(snpeff_in.vcf, snpeff_in.db, snpeff_in.cache)
+    ch_versions = ch_versions.mix(SNPEFF_SNPEFF.out.versions)
+
+
+    SNPSIFT_EXTRACTFIELDS(SNPEFF_SNPEFF.out.vcf)
+    ch_versions = ch_versions.mix(SNPSIFT_EXTRACTFIELDS.out.versions)
 
     //
     // Collate and save software versions

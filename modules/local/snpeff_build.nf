@@ -1,5 +1,5 @@
 process SNPEFF_BUILD {
-    tag "$fasta"
+    tag "$meta.id"
     label 'process_low'
 
     conda "bioconda::snpeff=5.0"
@@ -8,12 +8,10 @@ process SNPEFF_BUILD {
         'quay.io/biocontainers/snpeff:5.0--hdfd78af_1' }"
 
     input:
-    path fasta
-    path gff
+    tuple val(meta), path(fasta), path(gff)
 
     output:
-    path 'snpeff_db'   , emit: db
-    path '*.config'    , emit: config
+    tuple val(meta), path('snpeff_db'), path("*.config"), emit: db
     path "versions.yml", emit: versions
 
     when:
@@ -21,7 +19,7 @@ process SNPEFF_BUILD {
 
     script:
     def args = task.ext.args ?: ''
-    def basename = fasta.baseName
+    def prefix = task.ext.prefix ?: "${meta.id}"
     def extension = gff.getExtension()
     if (extension == "gtf") {
         format = "gtf22"
@@ -38,15 +36,15 @@ process SNPEFF_BUILD {
     """
     mkdir -p snpeff_db/genomes/
     cd snpeff_db/genomes/
-    ln -s ../../$fasta ${basename}.fa
+    ln -s ../../$fasta ${prefix}.fa
 
     cd ../../
-    mkdir -p snpeff_db/${basename}/
-    cd snpeff_db/${basename}/
+    mkdir -p snpeff_db/${prefix}/
+    cd snpeff_db/${prefix}/
     ln -s ../../$gff genes.$extension
 
     cd ../../
-    echo "${basename}.genome : ${basename}" > snpeff.config
+    echo "${prefix}.genome : ${prefix}" > snpeff.config
 
     snpEff \\
         -Xmx${avail_mem}g \\
@@ -56,7 +54,7 @@ process SNPEFF_BUILD {
         -${format} \\
         $args \\
         -v \\
-        ${basename}
+        ${prefix}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
