@@ -20,7 +20,7 @@ process SNPEFF_BUILD {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "${meta.id}"
-    def extension = gff.getExtension()
+    def extension = gff.getExtension().replace("3", "")
     if (extension == "gtf") {
         format = "gtf22"
     } else {
@@ -35,15 +35,11 @@ process SNPEFF_BUILD {
     }
     """
     mkdir -p snpeff_db/genomes/
-    cd snpeff_db/genomes/
-    ln -s ../../$fasta ${prefix}.fa
-
-    cd ../../
     mkdir -p snpeff_db/${prefix}/
-    cd snpeff_db/${prefix}/
-    ln -s ../../$gff genes.$extension
 
-    cd ../../
+    ln -s ../../$fasta snpeff_db/genomes/${prefix}.fa
+    ln -s ../../$gff snpeff_db/${prefix}/genes.$extension
+
     echo "${prefix}.genome : ${prefix}" > snpeff.config
 
     snpEff \\

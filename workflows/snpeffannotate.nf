@@ -31,10 +31,10 @@ workflow SNPEFFANNOTATE {
 
     snpeff_in = SNPEFF_BUILD.out.db
         .join(ch_vcf)
-        .multiMap{meta, db, cache, vcf ->
+        .multiMap{meta, db, config, vcf ->
             vcf: [meta, vcf]
-            db : db
-            cache: [meta, cache]
+            db : meta.id
+            cache: [meta, db, config]
         }
 
     SNPEFF_SNPEFF(snpeff_in.vcf, snpeff_in.db, snpeff_in.cache)
